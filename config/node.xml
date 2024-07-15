@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<WINFARM_SCADA_SYSCFG controlport="20200" path="/mnt/d/scada1/Build/debug/history">
+  <node name="pc" ip="127.0.0.1" port="10321"  type="pc" />
+  <!--<node name="pc2" ip="10.1.50.197" port="10321"  type="pc" />
+  <node name="pc3" ip="10.1.50.199" port="10321"  type="pc" /> -->
+  <node name="S01" ip="10.1.50.2" type="controller" plc="Bachmann" template="template_1" password="bachmann" username="M1" time="1000" writetime="1000"/>
+  <!--<node name="S02" ip="10.1.50.2" type="controller" plc="Bachmann" template="template_1" password="bachmann" username="M1" time="1000"/>
+  <node name="S03" ip="10.1.50.2" type="controller" plc="Bachmann" template="template_1" password="bachmann" username="M1" time="1000"/>
+  <node name="S04" ip="10.1.50.2" type="controller" plc="Bachmann" template="template_1" password="bachmann" username="M1" time="1000"/>
+  <node name="S05" ip="10.1.50.2" type="controller" plc="Bachmann" template="template_1" password="bachmann" username="M1" time="1000"/>
+  <node name="S06" ip="10.1.50.2" type="controller" plc="Bachmann" template="template_1" password="bachmann" username="M1" time="1000"/>
+  <node name="S07" ip="10.1.50.2" type="controller" plc="Bachmann" template="template_1" password="bachmann" username="M1" time="1000"/>
+  <node name="S08" ip="10.1.50.2" type="controller" plc="Bachmann" template="template_1" password="bachmann" username="M1" time="1000"/>
+  <node name="S09" ip="10.1.50.2" type="controller" plc="Bachmann" template="template_1" password="bachmann" username="M1" time="1000"/>
+  <node name="S10" ip="10.1.50.2" type="controller" plc="Bachmann" template="template_1" password="bachmann" username="M1" time="1000"/>
+  <node name="S11" ip="10.1.50.2" type="controller" plc="Bachmann" template="template_1" password="bachmann" username="M1" time="1000"/>
+  <node name="S12" ip="10.1.50.2" type="controller" plc="Bachmann" template="template_1" password="bachmann" username="M1" time="1000"/>
+  <node name="S13" ip="10.1.50.2" type="controller" plc="Bachmann" template="template_1" password="bachmann" username="M1" time="1000"/>
+  <node name="S14" ip="10.1.50.2" type="controller" plc="Bachmann" template="template_1" password="bachmann" username="M1" time="1000"/>
+  <node name="S15" ip="10.1.50.2" type="controller" plc="Bachmann" template="template_1" password="bachmann" username="M1" time="1000"/>
+  <node name="S16" ip="10.1.50.2" type="controller" plc="Bachmann" template="template_1" password="bachmann" username="M1" time="1000"/>-->
+  <!-- <node name="A01" type="controller" plc="beckhoff" ip="192.168.0.140" netid="192.168.0.106.1.1" template="template_3" zftemplate="xxxx" username="Administrator" password="123456" time="1000" /> -->
+ 
+</WINFARM_SCADA_SYSCFG>

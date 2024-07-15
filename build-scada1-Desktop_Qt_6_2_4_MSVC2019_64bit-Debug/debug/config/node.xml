@@ -1,0 +1,45 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<WINFARM_SCADA_SYSCFG controlport="20200" path="E:\history"> 
+  <node name="pc" ip="192.168.0.124" port="10321"  type="pc" />  
+  <node name="M02" type="controller" plc="modbus" ip="192.168.0.124" port="502" template="template_1" time="1000" slaveaddr="1" startaddrRegister = "0" startaddrInputRegister = "0" startaddrCoil="0"  startaddrInputCoil="0" />
+
+  <!--
+  <node name="A01" type="controller" plc="beckhoff" ip="192.168.0.143" netid="192.168.0.106.1.1" template="template_3" zftemplate="xxxx" username="Administrator" password="123456" time="1000" /> 
+
+  <node name="F01#" ip="192.168.0.124" type="controller" plc="modbus" template="template_1" password="1" username="Administrator" time="1000"/> -->
+  <!-- <node name="F02#" ip="192.168.0.103" type="controller" plc="beckhoff" template="template_1" password="1" username="Administrator" time="1000"/> -->
+  <!-- <node name="F03#" ip="192.168.0.103" type="controller" plc="beckhoff" template="template_1" password="1" username="Administrator" time="1000"/> -->
+  <!-- <node name="F04#" ip="192.168.0.103" type="controller" plc="beckhoff" template="template_1" password="1" username="Administrator" time="1000"/> -->
+  <!-- <node name="F05#" ip="192.168.0.103" type="controller" plc="beckhoff" template="template_1" password="1" username="Administrator" time="1000"/> -->
+  <!-- <node name="F06#" ip="192.168.0.103" type="controller" plc="beckhoff" template="template_1" password="1" username="Administrator" time="1000"/> -->
+  <!-- <node name="F07#" ip="192.168.0.103" type="controller" plc="beckhoff" template="template_1" password="1" username="Administrator" time="1000"/> -->
+  <!-- <node name="F08#" ip="192.168.0.103" type="controller" plc="beckhoff" template="template_1" password="1" username="Administrator" time="1000"/> -->
+  <!-- <node name="F09#" ip="192.168.0.103" type="controller" plc="beckhoff" template="template_1" password="1" username="Administrator" time="1000"/> -->
+  <!-- <node name="F10#" ip="192.168.0.103" type="controller" plc="beckhoff" template="template_1" password="1" username="Administrator" time="1000"/> -->
+  <!-- <node name="F11#" ip="192.168.0.103" type="controller" plc="beckhoff" template="template_1" password="1" username="Administrator" time="1000"/> -->
+  <!-- <node name="F12#" ip="192.168.0.103" type="controller" plc="beckhoff" template="template_1" password="1" username="Administrator" time="1000"/> -->
+  <!-- <node name="F13#" ip="192.168.0.103" type="controller" plc="beckhoff" template="template_1" password="1" username="Administrator" time="1000"/> -->
+  <!-- <node name="F14#" ip="192.168.0.103" type="controller" plc="beckhoff" template="template_1" password="1" username="Administrator" time="1000"/> -->
+  <!-- <node name="F15#" ip="192.168.0.103" type="controller" plc="beckhoff" template="template_1" password="1" username="Administrator" time="1000"/> -->
+  <!-- <node name="F16#" ip="192.168.0.103" type="controller" plc="beckhoff" template="template_1" password="1" username="Administrator" time="1000"/> -->
+  <!-- <node name="F17#" ip="192.168.0.103" type="controller" plc="beckhoff" template="template_1" password="1" username="Administrator" time="1000"/> -->
+  <!-- <node name="F18#" ip="192.168.0.103" type="controller" plc="beckhoff" template="template_1" password="1" username="Administrator" time="1000"/> -->
+  <!-- <node name="F19#" ip="192.168.0.103" type="controller" plc="beckhoff" template="template_1" password="1" username="Administrator" time="1000"/> -->
+  <!-- <node name="F20#" ip="192.168.0.103" type="controller" plc="beckhoff" template="template_1" password="1" username="Administrator" time="1000"/> -->
+  <!-- <node name="F21#" ip="192.168.0.103" type="controller" plc="beckhoff" template="template_1" password="1" username="Administrator" time="1000"/> -->
+  <!-- <node name="F22#" ip="192.168.0.103" type="controller" plc="beckhoff" template="template_1" password="1" username="Administrator" time="1000"/> -->
+  <!-- <node name="F23#" ip="192.168.0.103" type="controller" plc="beckhoff" template="template_1" password="1" username="Administrator" time="1000"/> -->
+  <!-- <node name="F24#" ip="192.168.0.103" type="controller" plc="beckhoff" template="template_1" password="1" username="Administrator" time="1000"/> -->
+  <!-- <node name="F25#" ip="192.168.0.103" type="controller" plc="beckhoff" template="template_1" password="1" username="Administrator" time="1000"/> -->
+  <!-- <node name="F26#" ip="192.168.0.103" type="controller" plc="beckhoff" template="template_1" password="1" username="Administrator" time="1000"/> -->
+  <!-- <node name="F27#" ip="192.168.0.103" type="controller" plc="beckhoff" template="template_1" password="1" username="Administrator" time="1000"/> -->
+  <!-- <node name="F28#" ip="192.168.0.103" type="controller" plc="beckhoff" template="template_1" password="1" username="Administrator" time="1000"/> -->
+  <!-- <node name="F29#" ip="192.168.0.103" type="controller" plc="beckhoff" template="template_1" password="1" username="Administrator" time="1000"/> -->
+  <!-- <node name="F30#" ip="192.168.0.103" type="controller" plc="beckhoff" template="template_1" password="1" username="Administrator" time="1000"/> -->
+  <!-- <node name="F31#" ip="192.168.0.103" type="controller" plc="beckhoff" template="template_1" password="1" username="Administrator" time="1000"/> -->
+  <!-- <node name="F32#" ip="192.168.0.103" type="controller" plc="beckhoff" template="template_1" password="1" username="Administrator" time="1000"/> -->
+  <!-- <node name="F33#" ip="192.168.0.103" type="controller" plc="beckhoff" template="template_1" password="1" username="Administrator" time="1000"/> -->
+  
+  <!-- <node name="A01" type="controller" plc="beckhoff" ip="192.168.0.103" netid="192.168.0.106.1.1" template="template_3" zftemplate="xxxx" username="Administrator" password="123456" time="1000" /> -->
+ 
+</WINFARM_SCADA_SYSCFG>

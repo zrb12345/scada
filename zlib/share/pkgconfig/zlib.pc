@@ -1,0 +1,13 @@
+prefix=C:/Program Files (x86)/zlib
+exec_prefix=C:/Program Files (x86)/zlib
+libdir=E:/work/C++/scada/scada1/zlib/lib
+sharedlibdir=E:/work/C++/scada/scada1/zlib/lib
+includedir=E:/work/C++/scada/scada1/zlib/include
+
+Name: zlib
+Description: zlib compression library
+Version: 1.3
+
+Requires:
+Libs: -L${libdir} -L${sharedlibdir} -lz
+Cflags: -I${includedir}

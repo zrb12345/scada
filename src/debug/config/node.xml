@@ -1,0 +1,69 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<WINFARM_SCADA_SYSCFG controlport="20200" path="E:\scada\build-scada1-Desktop_Qt_6_2_4_MSVC2019_64bit-Debug\debug\history">
+  <node name="pc" ip="127.0.0.1" port="10321"  type="pc" />
+  <!--<node name="pc2" ip="10.1.50.197" port="10321"  type="pc" />
+  <node name="pc3" ip="10.1.50.199" port="10321"  type="pc" />E:\scada\build-scada1-Desktop_Qt_6_2_4_MSVC2019_64bit-Debug\debug\config -->
+  <node name="S01" ip="10.1.50.2" type="controller" plc="Bachmann" template="template_1" password="bachmann" username="M1" time="1000" writetime="1000"/>
+  
+  
+   <!--<node name="S02" ip="10.1.50.2" type="controller" plc="Bachmann" template="template_1" password="bachmann" username="M1" time="1000"/>
+  <node name="S03" ip="10.1.50.2" type="controller" plc="Bachmann" template="template_1" password="bachmann" username="M1" time="1000"/>
+  <node name="S04" ip="10.1.50.2" type="controller" plc="Bachmann" template="template_1" password="bachmann" username="M1" time="1000"/>
+  <node name="S05" ip="10.1.50.2" type="controller" plc="Bachmann" template="template_1" password="bachmann" username="M1" time="1000"/>
+  <node name="S06" ip="10.1.50.2" type="controller" plc="Bachmann" template="template_1" password="bachmann" username="M1" time="1000"/>
+  <node name="S07" ip="10.1.50.2" type="controller" plc="Bachmann" template="template_1" password="bachmann" username="M1" time="1000"/>
+  <node name="S08" ip="10.1.50.2" type="controller" plc="Bachmann" template="template_1" password="bachmann" username="M1" time="1000"/>
+  <node name="S09" ip="10.1.50.2" type="controller" plc="Bachmann" template="template_1" password="bachmann" username="M1" time="1000"/>
+  <node name="S10" ip="10.1.50.2" type="controller" plc="Bachmann" template="template_1" password="bachmann" username="M1" time="1000"/>
+  <node name="S11" ip="10.1.50.2" type="controller" plc="Bachmann" template="template_1" password="bachmann" username="M1" time="1000"/>
+  <node name="S12" ip="10.1.50.2" type="controller" plc="Bachmann" template="template_1" password="bachmann" username="M1" time="1000"/>
+  <node name="S13" ip="10.1.50.2" type="controller" plc="Bachmann" template="template_1" password="bachmann" username="M1" time="1000"/>
+  <node name="S14" ip="10.1.50.2" type="controller" plc="Bachmann" template="template_1" password="bachmann" username="M1" time="1000"/>
+  <node name="S15" ip="10.1.50.2" type="controller" plc="Bachmann" template="template_1" password="bachmann" username="M1" time="1000"/>
+  <node name="S16" ip="10.1.50.2" type="controller" plc="Bachmann" template="template_1" password="bachmann" username="M1" time="1000"/>-->
+                                                  <!--ip要填目标的ip 不是本机的ip netid也是一样的-->
+<node name="A01" type="controller" plc="beckhoff" ip="192.168.0.143" netid="192.168.0.106.1.1" template="template_3" zftemplate="xxxx" username="Administrator" 
+password="123456" time="1000" />
+<!--  <node name="A02" type="controller" plc="beckhoff" ip="192.168.0.140" netid="192.168.0.106.1.1" template="template_3" zftemplate="xxxx" username="Administrator" 
+password="123456" time="1000" />
+  <node name="A03" type="controller" plc="beckhoff" ip="192.168.0.140" netid="192.168.0.106.1.1" template="template_3" zftemplate="xxxx" username="Administrator" 
+password="123456" time="1000" />
+  <node name="A04" type="controller" plc="beckhoff" ip="192.168.0.140" netid="192.168.0.106.1.1" template="template_3" zftemplate="xxxx" username="Administrator" 
+password="123456" time="1000" />
+  <node name="A05" type="controller" plc="beckhoff" ip="192.168.0.140" netid="192.168.0.106.1.1" template="template_3" zftemplate="xxxx" username="Administrator" 
+password="123456" time="1000" />
+  <node name="A06" type="controller" plc="beckhoff" ip="192.168.0.140" netid="192.168.0.106.1.1" template="template_3" zftemplate="xxxx" username="Administrator" 
+password="123456" time="1000" />
+  <node name="A07" type="controller" plc="beckhoff" ip="192.168.0.140" netid="192.168.0.106.1.1" template="template_3" zftemplate="xxxx" username="Administrator" 
+password="123456" time="1000" />
+  <node name="A08" type="controller" plc="beckhoff" ip="192.168.0.140" netid="192.168.0.106.1.1" template="template_3" zftemplate="xxxx" username="Administrator" 
+password="123456" time="1000" />
+  <node name="A09" type="controller" plc="beckhoff" ip="192.168.0.140" netid="192.168.0.106.1.1" template="template_3" zftemplate="xxxx" username="Administrator" 
+password="123456" time="1000" />  
+<node name="A10" type="controller" plc="beckhoff" ip="192.168.0.140" netid="192.168.0.106.1.1" template="template_3" zftemplate="xxxx" username="Administrator" 
+password="123456" time="1000" /> 
+ <node name="A11" type="controller" plc="beckhoff" ip="192.168.0.140" netid="192.168.0.106.1.1" template="template_3" zftemplate="xxxx" username="Administrator" 
+password="123456" time="1000" /> 
+ <node name="A12" type="controller" plc="beckhoff" ip="192.168.0.140" netid="192.168.0.106.1.1" template="template_3" zftemplate="xxxx" username="Administrator" 
+password="123456" time="1000" />
+  <node name="A13" type="controller" plc="beckhoff" ip="192.168.0.140" netid="192.168.0.106.1.1" template="template_3" zftemplate="xxxx" username="Administrator" 
+password="123456" time="1000" />
+  <node name="A14" type="controller" plc="beckhoff" ip="192.168.0.140" netid="192.168.0.106.1.1" template="template_3" zftemplate="xxxx" username="Administrator" 
+password="123456" time="1000" />
+  <node name="A15" type="controller" plc="beckhoff" ip="192.168.0.140" netid="192.168.0.106.1.1" template="template_3" zftemplate="xxxx" username="Administrator" 
+password="123456" time="1000" />
+  <node name="A16" type="controller" plc="beckhoff" ip="192.168.0.140" netid="192.168.0.106.1.1" template="template_3" zftemplate="xxxx" username="Administrator" 
+password="123456" time="1000" />
+  <node name="A17" type="controller" plc="beckhoff" ip="192.168.0.140" netid="192.168.0.106.1.1" template="template_3" zftemplate="xxxx" username="Administrator" 
+password="123456" time="1000" />  
+<node name="A18" type="controller" plc="beckhoff" ip="192.168.0.140" netid="192.168.0.106.1.1" template="template_3" zftemplate="xxxx" username="Administrator" 
+password="123456" time="1000" />
+  <node name="A19" type="controller" plc="beckhoff" ip="192.168.0.140" netid="192.168.0.106.1.1" template="template_3" zftemplate="xxxx" username="Administrator" 
+password="123456" time="1000" />
+<node name="A20" type="controller" plc="beckhoff" ip="192.168.0.140" netid="192.168.0.106.1.1" template="template_3" zftemplate="xxxx" username="Administrator" 
+password="123456" time="1000" />
+   <node name="M01" type="controller" plc="modbus" ip="192.168.0.136" port="502" template="template_4" zftemplate="xxxx"  time="1000"
+   startaddr = "0" readnum = "10" slaveaddr="1" startaddr3 = "500" readnum3 = "1000"  />-->
+<node name="M02" type="controller" plc="modbus" ip="127.0.0.1" port="502"  template="template_4" zftemplate="xxxx"  time="1000"  
+slaveaddr="1" startaddrRegister = "0" readnumRegister = "300" startaddrInputRegister = "0" readnumInputRegister = "300" startaddrCoil="0" readnumCoil = "490" startaddrInputCoil="0" readnumInputCoil = "500"  />
+</WINFARM_SCADA_SYSCFG>

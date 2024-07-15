@@ -1,0 +1,559 @@
+#include "RDSModbusSlave.h"
+#include <QDebug>
+#include <QUdpSocket>
+#include <QEventLoop>
+#include <QSocketNotifier>
+#include "configmanager.h"
+#include "StructAndEnum.h"
+using namespace config;
+#ifdef _WIN32
+    typedef int socklen_t;
+#endif
+
+
+RDSModbusSlaveThread::RDSModbusSlaveThread(std::string host, uint16_t port, QObject *parent) : QThread(parent)
+{
+    initModbus(host, port, false);
+    //TODO：
+
+    this->setHoldingRegisterValue(0, (uint16_t)0x1122);
+    this->setHoldingRegisterValue(3, (uint16_t)0x3022);
+    this->setHoldingRegisterValue(6, (uint16_t)0x6022);
+}
+
+/***************************************************************
+ * @file       RDSModbusSlaveThread.cpp
+ * @author     seer-txj
+ * @brief      Constructor
+ * @version    v1
+ * @return     null
+ * @date       2021/10/6
+ **************************************************************/
+// RDSModbusSlaveThread::RDSModbusSlaveThread(std::string host, uint16_t port)
+// {
+
+// }
+
+/***************************************************************
+ * @file       RDSModbusSlaveThread.cpp
+ * @author     seer-txj
+ * @brief      Destructor
+ * @version    v1
+ * @return     null
+ * @date       2021/10/6
+ **************************************************************/
+RDSModbusSlaveThread::~RDSModbusSlaveThread()
+{
+    modbus_mapping_free(mapping);
+    modbus_close(ctx);
+    modbus_free(ctx);
+}
+
+/***************************************************************
+ * @file       RDSModbusSlaveThread.cpp
+ * @author     seer-txj
+ * @brief      支持多个master同时连接
+ * @version    v1
+ * @return     null
+ * @date       2021/10/6
+ **************************************************************/
+void RDSModbusSlaveThread::recieveMessages()
+{
+    QEventLoop loop;
+    uint8_t query[MODBUS_TCP_MAX_ADU_LENGTH];
+    int master_socket;
+    int rc;
+    fd_set refset;
+    fd_set rdset;
+    /* Maximum file descriptor number */
+    int fdmax;
+    /* Clear the reference set of socket */
+    FD_ZERO(&refset);
+    /* Add the server socket */
+    FD_SET(m_modbusSocket, &refset);
+
+    /* Keep track of the max file descriptor */
+    fdmax = m_modbusSocket;
+
+    while (true)
+    {
+        rdset = refset;
+        if (select(fdmax + 1, &rdset, NULL, NULL, NULL) == -1)
+        {
+            perror("Server select() failure.");
+            break;
+        }
+
+        /* Run through the existing connections looking for data to be
+             * read */
+        for (master_socket = 0; master_socket <= fdmax; master_socket++)
+        {
+            if (!FD_ISSET(master_socket, &rdset))
+            {
+                continue;
+            }
+
+            if (master_socket == m_modbusSocket)
+            {
+                /* A client is asking a new connection */
+                socklen_t addrlen;
+                struct sockaddr_in clientaddr;
+                int newfd;
+
+                /* Handle new connections */
+                addrlen = sizeof(clientaddr);
+                memset(&clientaddr, 0, sizeof(clientaddr));
+                newfd = accept(m_modbusSocket, (struct sockaddr *)&clientaddr, &addrlen);
+                if (newfd == -1)
+                {
+                    perror("Server accept() error");
+                } else
+                {
+                    FD_SET(newfd, &refset);
+
+                    if (newfd > fdmax)
+                    {
+                        /* Keep track of the maximum */
+                        fdmax = newfd;
+                    }
+                    printf("New connection from %s:%d on socket %d\n", inet_ntoa(clientaddr.sin_addr), clientaddr.sin_port, newfd);
+                }
+            } else
+            {
+                modbus_set_socket(ctx, master_socket);
+                rc = modbus_receive(ctx, query);
+                if (rc > 0)
+                {
+                    modbus_reply(ctx, query, rc, mapping);
+                    char funcode = query[7];
+                    if (funcode == 0x05)//写单个线圈
+                    {
+                        qDebug() << "写单个线圈";
+                    } else if (funcode == 0x0f)//写多个线圈
+                    {
+                        qDebug() << "写多个线圈";
+                    }
+                    else if (funcode == 0x06) //写单个保持寄存器
+                    {
+                        // 00 0C 00 00    00 09 01 10   00 00  00 01  02  00 16 多个寄存器写
+                        // 00 82 00 00    00 06 01 06   00 00 00 16 单个寄存器写
+                        int lenofbayte = query[5];
+                        int trueDataByte = lenofbayte - 4;
+                        if (trueDataByte == 2) { //单个数据 2个字节
+                            int startAddr = query[8] << 8 | query[9];
+                            uchar char1 = query[10];
+                            uchar char2 = query[11];
+                            int result1 = char1 << 8 | char2;
+                            this->setHoldingRegisterValue(startAddr, (float)(result1 + 1.1));
+                        }
+                        if (trueDataByte == 4) { //float类型的数据 4个字节
+                            int startAddr = query[9] << 8 | query[10];
+                            float truevaleu = ByteToFloat(query[10], query[11], query[12], query[13]);
+                            this->setHoldingRegisterValue(startAddr, truevaleu);
+                        }
+
+                        qDebug() << "写保持寄存器";
+                    } else if (rc == -1)
+                    {
+                        /* This example server in ended on connection closing or
+                             * any errors. */
+                        printf("Connection closed on socket %d\n", master_socket);
+#ifdef _WIN32
+                        closesocket(master_socket);
+#else
+                        close(master_socket);
+#endif
+                        /* Remove from reference set */
+                        FD_CLR(master_socket, &refset);
+
+                        if (master_socket == fdmax)
+                        {
+                            fdmax--;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    m_initialized = false;
+    loop.exec();
+}
+/***************************************************************
+ * @file       RDSModbusSlaveThreadThread.cpp
+ * @author     seer-txj
+ * @brief      modbus_set_slave_id
+ * @param      id
+ * @version    v1
+ * @return     null
+ * @date       2021/10/19
+ **************************************************************/
+bool RDSModbusSlaveThread::modbus_set_slave_id(int id)
+{
+    int rc = modbus_set_slave(ctx, id);
+    if (rc == -1)
+    {
+        fprintf(stderr, "Invalid slave id\n");
+        modbus_free(ctx);
+        return false;
+    }
+    return true;
+}
+
+/***************************************************************
+ * @file       RDSModbusSlaveThread.cpp
+ * @author     seer-txj
+ * @brief      modbus initialization
+ * @param      IP/PORT/debugflag
+ * @version    v1
+ * @return     null
+ * @date       2021/10/6
+ **************************************************************/
+void RDSModbusSlaveThread::initModbus(std::string Host_Ip = "127.0.0.1", int port = 503, bool debugging = false)
+{
+    ctx = modbus_new_tcp(Host_Ip.c_str(), port);
+    modbus_set_debug(ctx, debugging);
+    if (ctx == NULL)
+    {
+        fprintf(stderr, "There was an error allocating the modbus\n");
+        throw - 1;
+    }
+    m_modbusSocket = modbus_tcp_listen(ctx, 1);
+    /*设置线圈, 离散输入, 输入寄存器, 保持寄存器个数(数组元素个数))*/
+    mapping = modbus_mapping_new(m_numBits, m_numInputBits, m_numInputRegisters, m_numRegisters);
+    if (mapping == NULL)
+    {
+        fprintf(stderr, "Unable to assign mapping：%s\n", modbus_strerror(errno));
+        modbus_free(ctx);
+        m_initialized = false;
+        // return false;
+    }
+    QUdpSocket *udpSocket  = new QUdpSocket(this);
+    if (!udpSocket->bind(QHostAddress::AnyIPv4, 8888))
+    {
+        qDebug() << "Failed to bind UDP socket";
+    }
+    connect(udpSocket, &QUdpSocket::readyRead, [ = ]()
+    {
+        ConfigManager &configInstance = ConfigManager::get_instance();
+        while (udpSocket->hasPendingDatagrams())
+        {   //如果有等待读取的数据 就是true
+            QByteArray udpData;
+            //读取的数据大小
+            udpData.resize(udpSocket->pendingDatagramSize());
+            udpSocket->readDatagram(udpData.data(), udpData.size());
+            //根据IP地址获取该对应哪个template
+            QList<config::dataConfig> datas ;
+            QString nodeName;//plc名称
+            uchar ip1 = udpData[0];
+            uchar ip2 = udpData[1];
+            uchar ip3 = udpData[2];
+            uchar ip4 = udpData[3];
+            QString ip  ;
+            // QString num1 = QString::number(ip1, 10);
+            // QString num2 = QString::number(ip2, 10);
+            // QString num3 = QString::number(ip3, 10);
+            // QString num4 = QString::number(ip4, 10);
+            ip.append(QString::number(ip4, 10));
+            ip.append('.');
+            ip.append(QString::number(ip3, 10));
+            ip.append('.');
+            ip.append(QString::number(ip2, 10));
+            ip.append('.');
+            ip.append(QString::number(ip1, 10));
+            qDebug() << "hello ip " << ip;
+            for (auto &modbusConfig : configInstance.m_nodeConfig.modbus_configs)
+            {
+                if (modbusConfig.plc_config.ip == ip)
+                {
+                    nodeName = modbusConfig.plc_config.name;
+                    QString templateName = modbusConfig.template_name;
+                    datas = configInstance.m_dataConfigsSorted.value(templateName);
+                    // num = modbusConfig.plc_config.readnum;
+                    // startAddr = modbusConfig.plc_config.startaddr;
+                    break;
+                }
+            }
+            if (udpData != "") {
+                uchar char1 = udpData[13];
+                uchar char2 = udpData[12];
+                uchar char3 = udpData[11];
+                uchar char4 = udpData[10];
+                int lenofbayte = char1 << 24 | char2 << 16   | char3 << 8 | char4;
+                int startAddr = udpData.length() - lenofbayte;
+                QMap<const QString, size_t> type_map = {
+                    {"bool", 1},     {"char", 1},  {"ushort", 1}, {"uint16", 2},
+                    {"int16", 2},    {"short", 2}, {"uint", 2},   {"int", 2},
+                    {"dint", 2},     {"udint", 2}, {"float", 4}
+                };
+                QMap<QString, config::dataValue> resolveMap;
+                int length = 0;
+                for (auto &modbus_config : datas) {
+                    config::dataValue item;
+                    item.var_name = modbus_config.var_name;
+                    item.chinese_name = modbus_config.chinese_name;
+                    item.Type = modbus_config.Type;
+                    item.alarm_id = modbus_config.alarm_id;
+                    item.alarm_level = modbus_config.alarm_level;
+                    item.factor = modbus_config.factor;
+                    item.RWmodle = modbus_config.RWmodle;
+                    auto type_size = type_map[modbus_config.Type];
+                    if (type_size == 1) {
+                        length = 1;
+                        item.value = udpData[startAddr ];
+                    }
+                    if (type_size == 2)
+                    {
+                        length = 2;
+                        uchar char1  = udpData[startAddr ];
+                        uchar char2 = udpData[startAddr + 1 ];
+                        item.value = (quint8)char1 << 8 | (quint8)char2;
+                    }
+                    if (modbus_config.Type == "float") {
+                        length = 4;
+                        uchar char1  = udpData[startAddr];
+                        uchar char2 = udpData[startAddr + 1];
+                        uchar char3 = udpData[startAddr + 2];
+                        uchar char4 = udpData[startAddr + 3];
+                        item.value =  ByteToFloat(char1, char2, char3, char4);
+                    }
+                    resolveMap.insert(item.var_name, item);
+                    startAddr += length;
+                }
+                QMap<QString, QMap<QString, QPair<int, config::dataConfig>>> publishs = configInstance.m_publishConfigs;
+                for (config::dataValue readData  : resolveMap) {
+                    if (publishs.contains(readData.var_name) {
+                    QMap<QString, QPair<int, dataConfig>>  publishConfigMap = publishs.value(readData.var_name);
+                        QPair<int, dataConfig> publishConfig  = publishConfigMap.value(nodeName);
+                        int modAddress = publishConfig.modAddress;
+                        float value = readData.value2;
+                        if (readData.RWmodle == "R") {
+                            this->setHoldingRegisterValue(modAddress, value);
+                        }
+                        else {
+                            this->setInputRegisterValue(modAddress, value);
+                        }
+                    }
+                }
+            }
+        }
+    });
+    m_initialized = true;
+}
+/***************************************************************
+ * @file       RDSModbusSlaveThread.cpp
+ * @author     seer-txj
+ * @brief      getTab_Input_Bits(获取输入寄存器某一位的值)
+ * @param      NumBit(输入寄存器相应的bit位)
+ * @version    v1
+ * @return     null
+ * @date       2021/10/8
+ **************************************************************/
+uint8_t RDSModbusSlaveThread::getTab_Input_Bits(int NumBit)
+{
+    if (!m_initialized)
+    {
+        return -1;
+    }
+    return mapping->tab_input_bits[NumBit];
+}
+
+/***************************************************************
+ * @file       RDSModbusSlaveThread.cpp
+ * @author     seer-txj
+ * @brief      setTab_Input_Bits(设置输入寄存器某一位的值)
+ * @param      NumBit(输入寄存器的起始地址)
+ * @param      Value(输入寄存器的值)
+ * @version    v1
+ * @return     null
+ * @date       2021/10/8
+ **************************************************************/
+bool RDSModbusSlaveThread::setTab_Input_Bits(int NumBit, uint8_t Value)
+{
+    if (NumBit > (m_numInputBits - 1))
+    {
+        return false;
+    }
+    slavemutex.lock();
+    mapping->tab_input_bits[NumBit] = Value;
+    slavemutex.unlock();
+    return true;
+}
+
+/***************************************************************
+ * @file       RDSModbusSlaveThread.cpp
+ * @author     seer-txj
+ * @brief      getRegisterValue(获取保存寄存器的值)
+ * @param      registerStartaddress(保存寄存器的起始地址)
+ * @version    v1
+ * @return     null
+ * @date       2021/10/6
+ **************************************************************/
+uint16_t RDSModbusSlaveThread::getHoldingRegisterValue(int registerStartaddress)
+{
+    if (!m_initialized)
+    {
+        return -1;
+    }
+    return mapping->tab_registers[registerStartaddress];
+}
+
+/***************************************************************
+ * @file       RDSModbusSlaveThread.cpp
+ * @author     seer-txj
+ * @brief      获取寄存器里的浮点数
+ * @param      registerStartaddress寄存器起始地址
+ * @version    v1
+ * @return     两个uint16_t拼接而成的浮点值
+ * @date       2021/10/6
+ **************************************************************/
+float RDSModbusSlaveThread::getHoldingRegisterFloatValue(int registerStartaddress)
+{
+    if (!m_initialized)
+    {
+        return -1.0f;
+    }
+    return modbus_get_float_badc(&mapping->tab_registers[registerStartaddress]);
+}
+
+/***************************************************************
+ * @file       RDSModbusSlaveThread.cpp
+ * @author     seer-txj
+ * @brief      setRegisterValue(设置保存寄存器的值，类型为uint16_t)
+ * @param      registerStartaddress(保存寄存器的起始地址)
+ * @param      Value(写入到保存寄存器里的值)
+ * @version    v1
+ * @return     null
+ * @date       2021/10/6
+ **************************************************************/
+bool RDSModbusSlaveThread::setHoldingRegisterValue(int registerStartaddress, uint16_t Value)
+{
+    if (registerStartaddress > (m_numRegisters - 1))
+    {
+        return false;
+    }
+    slavemutex.lock();
+    mapping->tab_registers[registerStartaddress] = Value;
+    slavemutex.unlock();
+    return true;
+}
+
+/***************************************************************
+ * @file       RDSModbusSlaveThread.cpp
+ * @author     seer-txj
+ * @brief      setRegisterFloatValue(设置浮点值)
+ * @param      (Value：浮点值，registerStartaddress寄存器起始地址)
+ * @version    v1
+ * @return     null
+ * @date       2021/10/8
+ **************************************************************/
+bool RDSModbusSlaveThread::setHoldingRegisterValue(int registerStartaddress, float Value)
+{
+    if (registerStartaddress > (m_numRegisters - 2))
+    {
+        return false;
+    }
+    /*小端模式*/
+    slavemutex.lock();
+    modbus_set_float(Value, &mapping->tab_registers[registerStartaddress]);
+    slavemutex.unlock();
+    return true;
+}
+
+bool RDSModbusSlaveThread::setInputRegisterValue(int registerStartaddress, uint16_t Value)
+{
+    if (registerStartaddress > (m_numRegisters - 1))
+    {
+        return false;
+    }
+    slavemutex.lock();
+    mapping->tab_input_registers[registerStartaddress] = Value;
+    slavemutex.unlock();
+    return true;
+}
+
+bool RDSModbusSlaveThread::setInputRegisterValue(int registerStartaddress, float Value)
+{
+    if (registerStartaddress > (m_numRegisters - 2))
+    {
+        return false;
+    }
+    /*小端模式*/
+    slavemutex.lock();
+    modbus_set_float(Value, &mapping->tab_input_registers[registerStartaddress]);
+    slavemutex.unlock();
+    return true;
+}
+
+/***************************************************************
+ * @file       RDSModbusSlaveThread.cpp
+ * @author     seer-txj
+ * @brief      loadFromConfigFile
+ * @version    v1
+ * @return     null
+ * @date       2021/10/18
+ **************************************************************/
+void RDSModbusSlaveThread::loadFromConfigFile()
+{
+
+}
+
+/***************************************************************
+ * @file       RDSModbusSlaveThread.cpp
+ * @author     seer-txj
+ * @brief      run
+ * @version    v1
+ * @return     null
+ * @date       2021/10/18
+ **************************************************************/
+void RDSModbusSlaveThread::run()
+{
+    std::thread loop([this]()
+    {
+        while (true)
+        {
+            if (m_initialized)
+            {
+                recieveMessages();
+            }
+            else
+            {
+                m_initialized = true;
+            }
+        }
+    });
+    loop.detach();
+    return;
+}
+static float RDSModbusSlaveThread::ByteToFloat(unsigned char m0, unsigned char m1, unsigned char m2, unsigned char m3)
+{
+    // 求符号位
+    float sig = 1.0;
+    if (m0 >= 128.0) {
+        sig = -1.0;
+    }
+    //求阶码
+    float jie = 0.0;
+    if (m0 >= 128.0)
+    {
+        jie = m0 - 128.0;
+    }
+    else
+    {
+        jie = m0;
+    }
+    jie = jie * 2.0;
+    if (m1 >= 128.0) {
+        jie += 1.0;
+    }
+    jie -= 127.0;
+    //求尾码
+    float tail = 0.0;
+    if (m1 >= 128.0) {
+        m1 -= 128.0;
+    }
+    tail =  m3 + (m2 + m1 * 256.0) * 256.0;
+    tail  = (tail) / 8388608; //   8388608 = 2^23
+    float f = sig * pow(2.0, jie) * (1 + tail);
+    return f;
+}
+// handleUDPDataWithDataXML(){}

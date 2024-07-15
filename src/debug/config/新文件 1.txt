@@ -1,0 +1,336 @@
+
+读取间隔是 1000
+ ycBYTES ????? 12 ??? 340349 sort  "badc" slave_id  1
+ ycBYTES  beforevalue =  0
+ ycBYTES ????? 14 ??? 340349 sort  "badc" slave_id  1
+ ycBYTES  beforevalue =  0
+ setSingleYXCoil  value =  0
+ setSingleYXCoil  beforevalue =  0
+ setSingleYXCoil  value =  0
+ setSingleYXCoil  beforevalue =  0
+ ycBYTES ????? 12 ??? 340350 sort  "badc" slave_id  1
+ ycBYTES  beforevalue =  12192
+ ycBYTES ????? 14 ??? 340350 sort  "badc" slave_id  1
+ ycBYTES  beforevalue =  12192
+ setSingleYXCoil  value =  0
+ setSingleYXCoil  beforevalue =  0
+ setSingleYXCoil  value =  0
+ setSingleYXCoil  beforevalue =  0
+ ycBYTES ????? 12 ??? 340351 sort  "badc" slave_id  1
+ ycBYTES  beforevalue =  12224
+ ycBYTES ????? 14 ??? 340351 sort  "badc" slave_id  1
+ ycBYTES  beforevalue =  12224
+ setSingleYXCoil  value =  0
+ setSingleYXCoil  beforevalue =  0
+ setSingleYXCoil  value =  0
+ setSingleYXCoil  beforevalue =  0
+ ycBYTES ????? 12 ??? 340352 sort  "badc" slave_id  1
+ ycBYTES  beforevalue =  12256
+ ycBYTES ????? 14 ??? 340352 sort  "badc" slave_id  1
+ ycBYTES  beforevalue =  12256
+ setSingleYXCoil  value =  0
+ setSingleYXCoil  beforevalue =  0
+ setSingleYXCoil  value =  0
+ setSingleYXCoil  beforevalue =  0
+ ycBYTES ????? 12 ??? 340353 sort  "badc" slave_id  1
+ ycBYTES  beforevalue =  12288
+ ycBYTES ????? 14 ??? 340353 sort  "badc" slave_id  1
+ ycBYTES  beforevalue =  12288
+ setSingleYXCoil  value =  0
+ setSingleYXCoil  beforevalue =  0
+ setSingleYXCoil  value =  0
+ setSingleYXCoil  beforevalue =  0
+ ycBYTES ????? 12 ??? 340354 sort  "badc" slave_id  1
+ ycBYTES  beforevalue =  12320
+ ycBYTES ????? 14 ??? 340354 sort  "badc" slave_id  1
+ ycBYTES  beforevalue =  12320
+ setSingleYXCoil  value =  0
+ setSingleYXCoil  beforevalue =  0
+ setSingleYXCoil  value =  0
+ setSingleYXCoil  beforevalue =  0
+ ycBYTES ????? 12 ??? 340355 sort  "badc" slave_id  1
+ ycBYTES  beforevalue =  12352
+ ycBYTES ????? 14 ??? 340355 sort  "badc" slave_id  1
+ ycBYTES  beforevalue =  12352
+ setSingleYXCoil  value =  0
+ setSingleYXCoil  beforevalue =  0
+ setSingleYXCoil  value =  0
+ setSingleYXCoil  beforevalue =  0
+ ycBYTES ????? 12 ??? 340356 sort  "badc" slave_id  1
+ ycBYTES  beforevalue =  12384
+ ycBYTES ????? 14 ??? 340356 sort  "badc" slave_id  1
+ ycBYTES  beforevalue =  12384
+ setSingleYXCoil  value =  0
+ setSingleYXCoil  beforevalue =  0
+ setSingleYXCoil  value =  0
+ setSingleYXCoil  beforevalue =  0
+ ycBYTES ????? 12 ??? 340357 sort  "badc" slave_id  1
+ ycBYTES  beforevalue =  12416
+ ycBYTES ????? 14 ??? 340357 sort  "badc" slave_id  1
+ ycBYTES  beforevalue =  12416
+ setSingleYXCoil  value =  0
+ setSingleYXCoil  beforevalue =  0
+ setSingleYXCoil  value =  0
+ setSingleYXCoil  beforevalue =  0
+ ycBYTES ????? 12 ??? 340358 sort  "badc" slave_id  1
+ ycBYTES  beforevalue =  12448
+ ycBYTES ????? 14 ??? 340358 sort  "badc" slave_id  1
+ ycBYTES  beforevalue =  12448
+ setSingleYXCoil  value =  0
+ setSingleYXCoil  beforevalue =  0
+ setSingleYXCoil  value =  0
+ setSingleYXCoil  beforevalue =  0
+ ycBYTES ????? 12 ??? 340359 sort  "badc" slave_id  1
+ ycBYTES  beforevalue =  12480
+ ycBYTES ????? 14 ??? 340359 sort  "badc" slave_id  1
+ ycBYTES  beforevalue =  12480
+ setSingleYXCoil  value =  0
+ setSingleYXCoil  beforevalue =  0
+ setSingleYXCoil  value =  0
+ setSingleYXCoil  beforevalue =  0
+ ycBYTES ????? 12 ??? 340360 sort  "badc" slave_id  1
+ ycBYTES  beforevalue =  12512
+ ycBYTES ????? 14 ??? 340360 sort  "badc" slave_id  1
+ ycBYTES  beforevalue =  12512
+ setSingleYXCoil  value =  0
+ setSingleYXCoil  beforevalue =  0
+ setSingleYXCoil  value =  0
+ setSingleYXCoil  beforevalue =  0
+ ycBYTES ????? 12 ??? 340361 sort  "badc" slave_id  1
+ ycBYTES  beforevalue =  12544
+ ycBYTES ????? 14 ??? 340361 sort  "badc" slave_id  1
+ ycBYTES  beforevalue =  12544
+ setSingleYXCoil  value =  0
+ setSingleYXCoil  beforevalue =  0
+ setSingleYXCoil  value =  0
+ setSingleYXCoil  beforevalue =  0
+ ycBYTES ????? 12 ??? 340362 sort  "badc" slave_id  1
+ ycBYTES  beforevalue =  12576
+ ycBYTES ????? 14 ??? 340362 sort  "badc" slave_id  1
+ ycBYTES  beforevalue =  12576
+ setSingleYXCoil  value =  0
+ setSingleYXCoil  beforevalue =  0
+ setSingleYXCoil  value =  0
+ setSingleYXCoil  beforevalue =  0
+ ycBYTES ????? 12 ??? 340363 sort  "badc" slave_id  1
+ ycBYTES  beforevalue =  12608
+ ycBYTES ????? 14 ??? 340363 sort  "badc" slave_id  1
+ ycBYTES  beforevalue =  12608
+ setSingleYXCoil  value =  0
+ setSingleYXCoil  beforevalue =  0
+ setSingleYXCoil  value =  0
+ setSingleYXCoil  beforevalue =  0
+ ycBYTES ????? 12 ??? 340364 sort  "badc" slave_id  1
+ ycBYTES  beforevalue =  12640
+ ycBYTES ????? 14 ??? 340364 sort  "badc" slave_id  1
+ ycBYTES  beforevalue =  12640
+ setSingleYXCoil  value =  0
+ setSingleYXCoil  beforevalue =  0
+ setSingleYXCoil  value =  0
+ setSingleYXCoil  beforevalue =  0
+ ycBYTES ????? 12 ??? 340365 sort  "badc" slave_id  1
+ ycBYTES  beforevalue =  12672
+ ycBYTES ????? 14 ??? 340365 sort  "badc" slave_id  1
+ ycBYTES  beforevalue =  12672
+ setSingleYXCoil  value =  0
+ setSingleYXCoil  beforevalue =  0
+ setSingleYXCoil  value =  0
+ setSingleYXCoil  beforevalue =  0
+ ycBYTES ????? 12 ??? 340366 sort  "badc" slave_id  1
+ ycBYTES  beforevalue =  12704
+ ycBYTES ????? 14 ??? 340366 sort  "badc" slave_id  1
+ ycBYTES  beforevalue =  12704
+ setSingleYXCoil  value =  0
+ setSingleYXCoil  beforevalue =  0
+ setSingleYXCoil  value =  0
+ setSingleYXCoil  beforevalue =  0
+ ycBYTES ????? 12 ??? 340367 sort  "badc" slave_id  1
+ ycBYTES  beforevalue =  12736
+ ycBYTES ????? 14 ??? 340367 sort  "badc" slave_id  1
+ ycBYTES  beforevalue =  12736
+ setSingleYXCoil  value =  0
+ setSingleYXCoil  beforevalue =  0
+ setSingleYXCoil  value =  0
+ setSingleYXCoil  beforevalue =  0
+ ycBYTES ????? 12 ??? 340368 sort  "badc" slave_id  1
+ ycBYTES  beforevalue =  12768
+ ycBYTES ????? 14 ??? 340368 sort  "badc" slave_id  1
+ ycBYTES  beforevalue =  12768
+ setSingleYXCoil  value =  0
+ setSingleYXCoil  beforevalue =  0
+ setSingleYXCoil  value =  0
+ setSingleYXCoil  beforevalue =  0
+ ycBYTES ????? 12 ??? 340369 sort  "badc" slave_id  1
+ ycBYTES  beforevalue =  12800
+ ycBYTES ????? 14 ??? 340369 sort  "badc" slave_id  1
+ ycBYTES  beforevalue =  12800
+ setSingleYXCoil  value =  0
+ setSingleYXCoil  beforevalue =  0
+ setSingleYXCoil  value =  0
+ setSingleYXCoil  beforevalue =  0
+ ycBYTES ????? 12 ??? 340370 sort  "badc" slave_id  1
+ ycBYTES  beforevalue =  12832
+ ycBYTES ????? 14 ??? 340370 sort  "badc" slave_id  1
+ ycBYTES  beforevalue =  12832
+ setSingleYXCoil  value =  0
+ setSingleYXCoil  beforevalue =  0
+ setSingleYXCoil  value =  0
+ setSingleYXCoil  beforevalue =  0
+ ycBYTES ????? 12 ??? 340371 sort  "badc" slave_id  1
+ ycBYTES  beforevalue =  12864
+ ycBYTES ????? 14 ??? 340371 sort  "badc" slave_id  1
+ ycBYTES  beforevalue =  12864
+ setSingleYXCoil  value =  0
+ setSingleYXCoil  beforevalue =  0
+ setSingleYXCoil  value =  0
+ setSingleYXCoil  beforevalue =  0
+ ycBYTES ????? 12 ??? 340372 sort  "badc" slave_id  1
+ ycBYTES  beforevalue =  12896
+ ycBYTES ????? 14 ??? 340372 sort  "badc" slave_id  1
+ ycBYTES  beforevalue =  12896
+ setSingleYXCoil  value =  0
+ setSingleYXCoil  beforevalue =  0
+ setSingleYXCoil  value =  0
+ setSingleYXCoil  beforevalue =  0
+ ycBYTES ????? 12 ??? 340373 sort  "badc" slave_id  1
+ ycBYTES  beforevalue =  12928
+ ycBYTES ????? 14 ??? 340373 sort  "badc" slave_id  1
+ ycBYTES  beforevalue =  12928
+ setSingleYXCoil  value =  0
+ setSingleYXCoil  beforevalue =  0
+ setSingleYXCoil  value =  0
+ setSingleYXCoil  beforevalue =  0
+ ycBYTES ????? 12 ??? 340374 sort  "badc" slave_id  1
+ ycBYTES  beforevalue =  12960
+ ycBYTES ????? 14 ??? 340374 sort  "badc" slave_id  1
+ ycBYTES  beforevalue =  12960
+ setSingleYXCoil  value =  0
+ setSingleYXCoil  beforevalue =  0
+ setSingleYXCoil  value =  0
+ setSingleYXCoil  beforevalue =  0
+ ycBYTES ????? 12 ??? 340375 sort  "badc" slave_id  1
+ ycBYTES  beforevalue =  12992
+ ycBYTES ????? 14 ??? 340375 sort  "badc" slave_id  1
+ ycBYTES  beforevalue =  12992
+ setSingleYXCoil  value =  0
+ setSingleYXCoil  beforevalue =  0
+ setSingleYXCoil  value =  0
+ setSingleYXCoil  beforevalue =  0
+ ycBYTES ????? 12 ??? 340376 sort  "badc" slave_id  1
+ ycBYTES  beforevalue =  13024
+ ycBYTES ????? 14 ??? 340376 sort  "badc" slave_id  1
+ ycBYTES  beforevalue =  13024
+ setSingleYXCoil  value =  0
+ setSingleYXCoil  beforevalue =  0
+ setSingleYXCoil  value =  0
+ setSingleYXCoil  beforevalue =  0
+ ycBYTES ????? 12 ??? 340377 sort  "badc" slave_id  1
+ ycBYTES  beforevalue =  13056
+ ycBYTES ????? 14 ??? 340377 sort  "badc" slave_id  1
+ ycBYTES  beforevalue =  13056
+ setSingleYXCoil  value =  0
+ setSingleYXCoil  beforevalue =  0
+ setSingleYXCoil  value =  0
+ setSingleYXCoil  beforevalue =  0
+ ycBYTES ????? 12 ??? 340378 sort  "badc" slave_id  1
+ ycBYTES  beforevalue =  13088
+ ycBYTES ????? 14 ??? 340378 sort  "badc" slave_id  1
+ ycBYTES  beforevalue =  13088
+ setSingleYXCoil  value =  0
+ setSingleYXCoil  beforevalue =  0
+ setSingleYXCoil  value =  0
+ setSingleYXCoil  beforevalue =  0
+ ycBYTES ????? 12 ??? 340379 sort  "badc" slave_id  1
+ ycBYTES  beforevalue =  13120
+ ycBYTES ????? 14 ??? 340379 sort  "badc" slave_id  1
+ ycBYTES  beforevalue =  13120
+ setSingleYXCoil  value =  0
+ setSingleYXCoil  beforevalue =  0
+ setSingleYXCoil  value =  0
+ setSingleYXCoil  beforevalue =  0
+ ycBYTES ????? 12 ??? 340380 sort  "badc" slave_id  1
+ ycBYTES  beforevalue =  13152
+ ycBYTES ????? 14 ??? 340380 sort  "badc" slave_id  1
+ ycBYTES  beforevalue =  13152
+ setSingleYXCoil  value =  0
+ setSingleYXCoil  beforevalue =  0
+ setSingleYXCoil  value =  0
+ setSingleYXCoil  beforevalue =  0
+ ycBYTES ????? 12 ??? 340381 sort  "badc" slave_id  1
+ ycBYTES  beforevalue =  13184
+ ycBYTES ????? 14 ??? 340381 sort  "badc" slave_id  1
+ ycBYTES  beforevalue =  13184
+ setSingleYXCoil  value =  0
+ setSingleYXCoil  beforevalue =  0
+ setSingleYXCoil  value =  0
+ setSingleYXCoil  beforevalue =  0
+ ycBYTES ????? 12 ??? 340382 sort  "badc" slave_id  1
+ ycBYTES  beforevalue =  13216
+ ycBYTES ????? 14 ??? 340382 sort  "badc" slave_id  1
+ ycBYTES  beforevalue =  13216
+ setSingleYXCoil  value =  0
+ setSingleYXCoil  beforevalue =  0
+ setSingleYXCoil  value =  0
+ setSingleYXCoil  beforevalue =  0
+ ycBYTES ????? 12 ??? 340383 sort  "badc" slave_id  1
+ ycBYTES  beforevalue =  13248
+ ycBYTES ????? 14 ??? 340383 sort  "badc" slave_id  1
+ ycBYTES  beforevalue =  13248
+ setSingleYXCoil  value =  0
+ setSingleYXCoil  beforevalue =  0
+ setSingleYXCoil  value =  0
+ setSingleYXCoil  beforevalue =  0
+ ycBYTES ????? 12 ??? 340384 sort  "badc" slave_id  1
+ ycBYTES  beforevalue =  13280
+ ycBYTES ????? 14 ??? 340384 sort  "badc" slave_id  1
+ ycBYTES  beforevalue =  13280
+ setSingleYXCoil  value =  0
+ setSingleYXCoil  beforevalue =  0
+ setSingleYXCoil  value =  0
+ setSingleYXCoil  beforevalue =  0
+ ycBYTES ????? 12 ??? 340385 sort  "badc" slave_id  1
+ ycBYTES  beforevalue =  13312
+ ycBYTES ????? 14 ??? 340385 sort  "badc" slave_id  1
+ ycBYTES  beforevalue =  13312
+ setSingleYXCoil  value =  0
+ setSingleYXCoil  beforevalue =  0
+ setSingleYXCoil  value =  0
+ setSingleYXCoil  beforevalue =  0
+ ycBYTES ????? 12 ??? 340386 sort  "badc" slave_id  1
+ ycBYTES  beforevalue =  13344
+ ycBYTES ????? 14 ??? 340386 sort  "badc" slave_id  1
+ ycBYTES  beforevalue =  13344
+ setSingleYXCoil  value =  0
+ setSingleYXCoil  beforevalue =  0
+ setSingleYXCoil  value =  0
+ setSingleYXCoil  beforevalue =  0
+ ycBYTES ????? 12 ??? 340387 sort  "badc" slave_id  1
+ ycBYTES  beforevalue =  13376
+ ycBYTES ????? 14 ??? 340387 sort  "badc" slave_id  1
+ ycBYTES  beforevalue =  13376
+ setSingleYXCoil  value =  0
+ setSingleYXCoil  beforevalue =  0
+ setSingleYXCoil  value =  0
+ setSingleYXCoil  beforevalue =  0
+ ycBYTES ????? 12 ??? 340388 sort  "badc" slave_id  1
+ ycBYTES  beforevalue =  13408
+ ycBYTES ????? 14 ??? 340388 sort  "badc" slave_id  1
+ ycBYTES  beforevalue =  13408
+ setSingleYXCoil  value =  0
+ setSingleYXCoil  beforevalue =  0
+ setSingleYXCoil  value =  0
+ setSingleYXCoil  beforevalue =  0
+ ycBYTES ????? 12 ??? 340389 sort  "badc" slave_id  1
+ ycBYTES  beforevalue =  13440
+ ycBYTES ????? 14 ??? 340389 sort  "badc" slave_id  1
+ ycBYTES  beforevalue =  13440
+ setSingleYXCoil  value =  0
+ ycBYTES ????? 12 ??? 340390 sort  "badc" slave_id  1
+ ycBYTES  beforevalue =  13472
+ ycBYTES ????? 14 ??? 340390 sort  "badc" slave_id  1
+ ycBYTES  beforevalue =  13472
+ 
+ ycBYTES ????? 12 ??? 340391 sort  "badc" slave_id  1
+ ycBYTES  beforevalue =  13504
+ ycBYTES ????? 14 ??? 340391 sort  "badc" slave_id  1
+ ycBYTES  beforevalue =  13504

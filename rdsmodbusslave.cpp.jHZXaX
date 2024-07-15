@@ -1,0 +1,654 @@
+#include "RDSModbusSlave.h"
+
+#include <QDebug>
+#include <QEventLoop>
+#include <QSocketNotifier>
+#include <QUdpSocket>
+
+#include "StructAndEnum.h"
+#include "configmanager.h"
+using namespace config;
+#ifdef _WIN32
+    typedef int socklen_t;
+#endif
+
+RDSModbusSlaveThread::RDSModbusSlaveThread(std::string host, uint16_t port,
+        QObject *parent)
+    : QThread(parent) {
+    initModbus(host, port, false);
+}
+
+RDSModbusSlaveThread::~RDSModbusSlaveThread() {
+    for (QMap<int, modbus_mapping_t *>::iterator it = MODBUSmappings.begin();
+            it != MODBUSmappings.end(); it++) {
+        modbus_mapping_t *mapping = it.value();
+        modbus_mapping_free(mapping);
+    }
+    modbus_close(ctx);
+    modbus_free(ctx);
+}
+void RDSModbusSlaveThread::recieveMessages() {
+    QEventLoop loop;
+    uint8_t query[MODBUS_TCP_MAX_ADU_LENGTH];
+    int master_socket;
+    int rc;
+    fd_set refset;
+    fd_set rdset;
+    /* Maximum file descriptor number */
+    int fdmax;
+    /* Clear the reference set of socket */
+    FD_ZERO(&refset);
+    /* Add the server socket */
+    FD_SET(m_modbusSocket, &refset);
+    /* Keep track of the max file descriptor */
+    fdmax = m_modbusSocket;
+    while (true) {
+        rdset = refset;
+        if (select(fdmax + 1, &rdset, NULL, NULL, NULL) == -1) {
+            perror("Server select() failure.");
+            break;
+        }
+        /* Run through the existing connections looking for data to be
+         * read */
+        for (master_socket = 0; master_socket <= fdmax; master_socket++) {
+            if (!FD_ISSET(master_socket, &rdset)) {
+                continue;
+            }
+            if (master_socket == m_modbusSocket) {
+                /* A client is asking a new connection */
+                socklen_t addrlen;
+                struct sockaddr_in clientaddr;
+                int newfd;
+                /* Handle new connections */
+                addrlen = sizeof(clientaddr);
+                memset(&clientaddr, 0, sizeof(clientaddr));
+                newfd =
+                    accept(m_modbusSocket, (struct sockaddr *)&clientaddr, &addrlen);
+                if (newfd == -1) {
+                    perror("Server accept() error");
+                } else {
+                    FD_SET(newfd, &refset);
+
+                    if (newfd > fdmax) {
+                        /* Keep track of the maximum */
+                        fdmax = newfd;
+                    }
+                    printf("New connection from %s:%d on socket %d\n",
+                           inet_ntoa(clientaddr.sin_addr), clientaddr.sin_port, newfd);
+                }
+            } else {
+                modbus_set_socket(ctx, master_socket);
+                rc = modbus_receive(ctx, query);
+                if (rc > 0) {
+                    // modbus_reply(ctx, query, rc, mapping);
+                    if (query[6] == 1)
+                    {
+                        modbus_reply(ctx, query, rc, MODBUSmappings.value(1));
+                    }
+                    if (query[6] == 2)
+                    {
+                        modbus_reply(ctx, query, rc, MODBUSmappings.value(2));
+                    }
+                    char funcode = query[7];
+                    if (funcode == 0x05)  // 写单个线圈
+                    {
+                        qDebug() << "写单个线圈";
+                    } else if (funcode == 0x0f)  // 写多个线圈
+                    {
+                        qDebug() << "写多个线圈";
+                    } else if (funcode == 0x06)  // 写单个保持寄存器
+                    {
+                    } else if (rc == -1) {
+                        /* This example server in ended on connection closing or
+                         * any errors. */
+                        printf("Connection closed on socket %d\n", master_socket);
+#ifdef _WIN32
+                        closesocket(master_socket);
+#else
+                        close(master_socket);
+#endif
+                        /* Remove from reference set */
+                        FD_CLR(master_socket, &refset);
+
+                        if (master_socket == fdmax) {
+                            fdmax--;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    m_initialized = false;
+    loop.exec();
+}
+bool RDSModbusSlaveThread::modbus_set_slave_id(int id) {
+    int rc = modbus_set_slave(ctx, id);
+    if (rc == -1) {
+        fprintf(stderr, "Invalid slave id\n");
+        modbus_free(ctx);
+        return false;
+    }
+    return true;
+}
+void RDSModbusSlaveThread::initModbus(std::string Host_Ip = "127.0.0.1",
+                                      int port = 503, bool debugging = false) {
+    ConfigManager &configInstance = ConfigManager::get_instance();
+    ctx = modbus_new_tcp(Host_Ip.c_str(), port);
+    modbus_set_debug(ctx, debugging);
+    if (ctx == NULL) {
+        fprintf(stderr, "There was an error allocating the modbus\n");
+        throw - 1;
+    }
+    m_modbusSocket = modbus_tcp_listen(ctx, 1);
+    /*设置线圈, 离散输入, 输入寄存器, 保持寄存器个数(数组元素个数))*/
+    QMap<QString, QMap<int, config::publishNode>>m_publishConfigs = configInstance.m_publishConfigs;
+    QMap<int, config::publishNode>m_modbusPublishConfigs = m_publishConfigs.value("modbus");
+    for (QMap<int, publishNode>::iterator it = m_modbusPublishConfigs.begin();
+            it != m_modbusPublishConfigs.end(); it++)
+    {
+        modbus_mapping_t *mapping = modbus_mapping_new(m_numBits, m_numInputBits, m_numInputRegisters,
+                                    m_numRegisters);
+        MODBUSmappings.insert(it.key(), mapping);
+
+        if (mapping == NULL) {
+            fprintf(stderr, "Unable to assign mapping：%s\n", modbus_strerror(errno));
+            modbus_free(ctx);
+            m_initialized = false;
+            // return false;
+        }
+    }
+    QMap<int, config::publishNode>m_IEC104PublishConfigs = m_publishConfigs.value("IEC104");
+    for (QMap<int, publishNode>::iterator it = m_IEC104PublishConfigs.begin();
+            it != m_IEC104PublishConfigs.end(); it++)
+    {
+        IEC104_mapping *mapping = IEC104_mapping_new(m_single_yx_bits, m_double_yc_bits, m_yc_bytes);
+        IEC104mappings.insert(it.key(), mapping);
+
+        if (mapping == NULL) {
+            fprintf(stderr, "Unable to assign mapping：%s\n", modbus_strerror(errno));
+            modbus_free(ctx);
+            m_initialized = false;
+            // return false;
+        }
+    }
+    QUdpSocket *udpSocket = new QUdpSocket(this);
+    QHostAddress _peerHostAddress = QHostAddress("127.0.0.1");  //对位服务器IP
+    if (!udpSocket->bind(_peerHostAddress, 10321)) {
+        qDebug() << "Failed to bind UDP socket";
+    }
+    connect(udpSocket, &QUdpSocket::readyRead, [ = ]()
+    {
+        ConfigManager &configInstance = ConfigManager::get_instance();
+        while (udpSocket->hasPendingDatagrams()) {  // 如果有等待读取的数据 就是true
+            QByteArray udpData;
+            // 读取的数据大小
+            udpData.resize(udpSocket->pendingDatagramSize());
+            udpSocket->readDatagram(udpData.data(), udpData.size());
+            // 根据IP地址获取该对应哪个template
+            QList<config::dataConfig> datas;
+            QString nodeName;  // plc名称
+            QString templateName ;
+            int ip1 = (uchar)udpData[0];
+            int ip2 = (uchar)udpData[1];
+            int ip3 = (uchar)udpData[2];
+            int ip4 = (uchar)udpData[3];
+            QString ip;
+            ip.append(QString::number(ip4, 10));
+            ip.append('.');
+            ip.append(QString::number(ip3, 10));
+            ip.append('.');
+            ip.append(QString::number(ip2, 10));
+            ip.append('.');
+            ip.append(QString::number(ip1, 10));
+            // qDebug() << "hello ip " << ip;
+            for (auto &modbusConfig : configInstance.m_nodeConfig.modbus_configs) {
+                if (modbusConfig.plc_config.ip == ip) {
+                    nodeName = modbusConfig.name;
+                    templateName = modbusConfig.template_name;
+                    datas = configInstance.m_dataConfigsSorted.value(templateName);
+                    break;
+                }
+            }
+            for (auto &beckhoff_config : configInstance.m_nodeConfig.beckhoff_configs) {
+                if (beckhoff_config.plc_config.ip == ip) {
+                    nodeName = beckhoff_config.name;
+                    // qDebug() << "nodeName " << nodeName;
+                    templateName = beckhoff_config.template_name;
+                    QMap<QString, QPair<int, config::dataConfig>> datas2 = configInstance.m_dataConfigs.value(templateName);
+                    for (int i = 0; i < datas2.size(); i++)
+                    {
+                        config::dataConfig config ;
+                        datas.push_back(config) ;
+                    }
+                    for (auto it = datas2.begin(); it != datas2.end(); it++) {
+                        QPair<int, config::dataConfig> temp = it.value();
+                        datas[temp.first] = temp.second;
+                    }
+                    break;
+                }
+            }
+            for (auto &bhm_config : configInstance.m_nodeConfig.plc_configs) {
+                if (bhm_config.plc_config.ip == ip) {
+                    nodeName = bhm_config.name;
+                    // qDebug() << "nodeName " << nodeName;
+                    templateName = bhm_config.template_name;
+                    QMap<QString, QPair<int, config::dataConfig>> datas3 = configInstance.m_dataConfigs.value(templateName);
+                    for (int i = 0; i < datas3.size(); i++)
+                    {
+                        config::dataConfig config ;
+                        datas.push_back(config) ;
+                    }
+                    for (auto it = datas3.begin(); it != datas3.end(); it++) {
+                        QPair<int, config::dataConfig> temp = it.value();
+                        datas[temp.first] = temp.second;
+                    }
+                    break;
+                }
+            }
+            if (udpData != "") {
+                int len1 = (uchar)udpData[10];
+                int len2 = (uchar)udpData[11];
+                int len3 = (uchar)udpData[12];
+                int len4 = (uchar)udpData[13];
+                int lenofbayte = len4 << 24 | len3 << 16 | len2 << 8 | len1;
+                int startAddr = udpData.length() - lenofbayte ;
+                if (startAddr == udpData.length() - 1)
+                {
+                    return;
+                }
+                QMap<const QString, size_t> type_map = {
+                    {"bool", 1},  {"char", 1},  {"ushort", 1}, {"uint16", 2},
+                    {"int16", 2}, {"short", 2}, {"uint", 2},   {"int", 2},
+                    {"dint", 2},  {"udint", 2}, {"float", 4}
+                };
+                QMap<QString, config::dataValue> resolveMap;
+                int length = 0;
+                for (int i = 0; i < datas.length(); i++) {
+                    auto &modbus_config = datas[i];
+                    config::dataValue item;
+                    item.var_name = modbus_config.var_name;
+                    item.chinese_name = modbus_config.chinese_name;
+                    item.Type = modbus_config.Type;
+                    item.alarm_id = modbus_config.alarm_id;
+                    item.alarm_level = modbus_config.alarm_level;
+                    item.factor = modbus_config.factor;
+                    item.RWmodle = modbus_config.RWmodle;
+                    auto type_size = type_map[modbus_config.Type];
+                    if (type_size == 1) {
+                        length = 1;
+                        int byte1char = (uchar) udpData[startAddr];
+                        item.value2 = byte1char;
+                    }
+                    if (type_size == 2) {
+                        length = 2;
+                        int byte1int = (uchar)udpData[startAddr];
+                        int byte2int = (uchar)udpData[startAddr + 1];
+                        item.value2 = byte1int << 8 | byte2int;
+                    }
+                    if (modbus_config.Type == "float") {
+                        length = 4;
+                        uchar char11 = (uchar)udpData[startAddr];
+                        uchar char22 = (uchar)udpData[startAddr + 1];
+                        uchar char33 = (uchar)udpData[startAddr + 2];
+                        uchar char44 = (uchar)udpData[startAddr + 3];
+                        item.value2 = ByteToFloat(char11, char22, char33, char44);
+                    }
+                    resolveMap.insert(item.var_name, item);
+                    startAddr += length;
+                }
+                QMap<QString, QMap<int, config::publishNode>> publishs = configInstance.m_publishConfigs;
+                QMap<int, config::publishNode> modbus_publishs = publishs.value("modbus");
+                QMap<int, config::publishNode> IEC104_publishs = publishs.value("IEC104");
+                for (config::dataValue readData : resolveMap)
+                {
+                    for (auto &publishTemplate : modbus_publishs)
+                    {
+                        int slave_id = publishTemplate.slave_id;
+                        QString float_sort = publishTemplate.float_sort;
+                        QMap<QString, QMap<QString, dataConfig>> dataConfigsOfPlcs = publishTemplate.publishDatas;
+                        if (dataConfigsOfPlcs.contains(nodeName))
+                        {
+                            QMap<QString, config::dataConfig> dataConfigsOfPlc = dataConfigsOfPlcs.value(nodeName);
+
+                            if (dataConfigsOfPlc.contains(readData.var_name))
+                            {
+                                config::dataConfig publishConfig = dataConfigsOfPlc.value(readData.var_name);
+                                int modAddress = publishConfig.modAddress;
+                                float value = readData.value2;
+                                if (readData.Type != "char")
+                                {
+                                    if (readData.RWmodle == "W")
+                                    {
+                                        this->setHoldingRegisterValue(slave_id, modAddress, value, float_sort);
+                                    }
+                                    else
+                                    {
+                                        this->setInputRegisterValue(slave_id, modAddress, value, float_sort);
+                                    }
+                                } else {
+                                    if (readData.RWmodle == "W")
+                                    {
+                                        uint8_t valueCoil = (uint8_t)readData.value2;
+                                        this->setCoil(slave_id, modAddress, valueCoil);
+                                    }
+                                    else
+                                    {
+                                        uint8_t valueCoil = (uint8_t)readData.value2;
+                                        this->setInputCoil(slave_id, modAddress, valueCoil);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    for (auto &publishTemplate : IEC104_publishs)
+                    {
+                        int slave_id = publishTemplate.slave_id;
+                        QString float_sort = publishTemplate.float_sort;
+                        QMap<QString, QMap<QString, dataConfig>> dataConfigsOfPlcs = publishTemplate.publishDatas;
+                        if (dataConfigsOfPlcs.contains(nodeName))
+                        {
+                            QMap<QString, config::dataConfig> dataConfigsOfPlc = dataConfigsOfPlcs.value(nodeName);
+
+                            if (dataConfigsOfPlc.contains(readData.var_name))
+                            {
+                                config::dataConfig publishConfig = dataConfigsOfPlc.value(readData.var_name);
+                                int modAddress = publishConfig.modAddress;
+                                float value = readData.value2;
+                                if (readData.Type != "char")
+                                {
+                                    this->setInputRegisterValue(slave_id, modAddress, value, float_sort);
+                                } else {
+                                    if (readData.IEC104Type == "single_YX")
+                                    {
+                                        uint8_t valueCoil = (uint8_t)readData.value2;
+                                        this->setSingleYXCoil(slave_id, modAddress, valueCoil);
+                                    }
+                                    if (readData.IEC104Type == "double_YX")
+                                    {
+                                        uint8_t valueCoil = (uint8_t)readData.value2;
+                                        this->setDoubleYXCoil(slave_id, modAddress, valueCoil);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    });
+    m_initialized = true;
+}
+bool RDSModbusSlaveThread::setHoldingRegisterValue(int slave_id, int registerStartaddress,
+        uint16_t Value, QString sort) {
+    if (registerStartaddress > (m_numRegisters - 1)) {
+        return false;
+    }
+    slavemutex.lock();
+    // mapping->tab_registers[registerStartaddress] = Value;
+    modbus_mapping_t *mapping = MODBUSmappings.value(slave_id);
+    switch (sort[0].toLatin1()) {
+        case 'a':
+            mapping->tab_registers[registerStartaddress] = Value;
+            break;
+        case 'b':
+            uint32_t temp = Value;
+            temp = htonl(temp);
+            uint16_t handledValue = temp >> 16;
+            mapping->tab_registers[registerStartaddress] = handledValue;
+            break;
+    }
+    slavemutex.unlock();
+    return true;
+}
+
+bool RDSModbusSlaveThread::setHoldingRegisterValue(int slave_id, int registerStartaddress,
+        float Value, QString sort) {
+    if (registerStartaddress > (m_numRegisters - 2)) {
+        return false;
+    }
+    slavemutex.lock();
+    modbus_mapping_t *mapping = MODBUSmappings.value(slave_id);
+    switch (sort[0].toLatin1()) {
+        case 'a':
+            modbus_set_float_abcd(Value, &mapping->tab_registers[registerStartaddress]);
+            break;
+        case 'd':
+            modbus_set_float_dcba(Value, &mapping->tab_registers[registerStartaddress]);
+            break;
+        case 'b':
+            modbus_set_float_badc(Value, &mapping->tab_registers[registerStartaddress]);
+            break;
+        case 'c':
+            modbus_set_float_cdab(Value, &mapping->tab_registers[registerStartaddress]);
+            break;
+    }
+    slavemutex.unlock();
+    return true;
+}
+bool RDSModbusSlaveThread::setCoil(int slave_id, int coilStartaddress, uint8_t status)
+{
+    modbus_mapping_t *mapping =  MODBUSmappings.value(slave_id);
+    if (coilStartaddress > (m_numBits)) {
+        return false;
+    }
+    int startBits = mapping->start_bits;
+    int mapping_address = coilStartaddress - startBits;
+    if (mapping_address < 0 || mapping_address >= mapping->nb_bits) {
+    } else {
+
+        mapping->tab_bits[mapping_address] = status ? ON : OFF;
+    }
+    return true;
+}
+bool RDSModbusSlaveThread::setDoubleYXCoil(int slave_id, int coilStartaddress,
+        uint8_t status) {
+    iec104_mapping *mapping =  IEC104mappings.value(slave_id);
+    if (coilStartaddress > (m_numBits)) {
+        return false;
+    }
+    int startBits = mapping->double_yx_start_bits;
+    int mapping_address = coilStartaddress - startBits;
+    if (mapping_address < 0 || mapping_address >= mapping->double_yx_bits) {
+    } else {
+        mapping->tab_double_yx_bits[mapping_address] = status ? ON : OFF;
+    }
+    return true;
+}
+bool RDSModbusSlaveThread::setSingleYXCoil(int slave_id, int coilStartaddress,
+        uint8_t status) {
+    iec104_mapping *mapping =  IEC104mappings.value(slave_id);
+    if (coilStartaddress > (m_numBits)) {
+        return false;
+    }
+    int startBits = mapping->single_yx_start_bits;
+    int mapping_address = coilStartaddress - startBits;
+    if (mapping_address < 0 || mapping_address >= mapping->single_yx_bits) {
+    } else {
+        mapping->tab_single_yx_bits[mapping_address] = status ? ON : OFF;
+    }
+    return true;
+}
+bool RDSModbusSlaveThread::setInputCoil(int slave_id, int coilStartaddress,
+                                        uint8_t status) {
+    modbus_mapping_t *mapping =  MODBUSmappings.value(slave_id);
+    if (coilStartaddress > (m_numBits)) {
+        return false;
+    }
+    int startBits = mapping->start_input_bits;
+    int mapping_address = coilStartaddress - startBits;
+    if (mapping_address < 0 || mapping_address >= mapping->nb_input_bits) {
+    } else {
+        mapping->tab_input_bits[mapping_address] = status ? ON : OFF;
+    }
+    return true;
+}
+bool RDSModbusSlaveThread::setInputRegisterValue(int slave_id, int registerStartaddress,
+        uint16_t Value, QString sort) {
+    if (registerStartaddress > (m_numRegisters - 1)) {
+        return false;
+    }
+    slavemutex.lock();
+    modbus_mapping_t *mapping = MODBUSmappings.value(slave_id);
+    switch (sort[0].toLatin1()) {
+        case 'a':
+            mapping->tab_input_registers[registerStartaddress] = Value;
+            break;
+        case 'b':
+            uint32_t temp = Value;
+            temp = htonl(temp);
+            uint16_t handledValue = temp >> 16;
+            mapping->tab_input_registers[registerStartaddress] = handledValue;
+            break;
+    }
+    slavemutex.unlock();
+    return true;
+}
+
+bool RDSModbusSlaveThread::setInputRegisterValue(int slave_id, int registerStartaddress,
+        float Value, QString sort) {
+    if (registerStartaddress > (m_numRegisters - 2)) {
+        return false;
+    }
+    /*大端模式*/
+    slavemutex.lock();
+    modbus_mapping_t *mapping = MODBUSmappings.value(slave_id);
+    switch (sort[0].toLatin1()) {
+        case 'a':
+            modbus_set_float_abcd(Value, &mapping->tab_input_registers[registerStartaddress]);
+            break;
+        case 'd':
+            modbus_set_float_dcba(Value, &mapping->tab_input_registers[registerStartaddress]);
+            break;
+        case 'b':
+            modbus_set_float_badc(Value, &mapping->tab_input_registers[registerStartaddress]);
+            break;
+        case 'c':
+            modbus_set_float_cdab(Value, &mapping->tab_input_registers[registerStartaddress]);
+            break;
+    }
+    // modbus_set_float_abcd(Value, &mapping->tab_input_registers[registerStartaddress]);
+    slavemutex.unlock();
+    return true;
+}
+
+
+void RDSModbusSlaveThread::run() {
+    std::thread loop([this]() {
+        while (true) {
+            if (m_initialized) {
+                recieveMessages();
+            } else {
+                m_initialized = true;
+            }
+        }
+    });
+    loop.detach();
+    return;
+}
+
+/* Allocates 3 arrays to store singleYX bits,doubleYX bits , YC registers
+   The pointers are stored in IEC104_mapping structure.
+   The IEC104_mapping_new_start_address() function shall return the new allocated
+   structure if successful. Otherwise it shall return NULL and set errno to
+   ENOMEM. */
+IEC104_mapping *RDSModbusSlaveThread::IEC104_mapping_new_start_address(
+    unsigned int start_single_yx_bits, unsigned int single_yx_bits,
+    unsigned int start_double_yx_bits, unsigned int double_yx_bits,
+    unsigned int start_yc_registers, unsigned int yc_registers)
+{
+    IEC104_mapping *iec104_mappingRes;
+
+    iec104_mappingRes = (IEC104_mapping *)malloc(sizeof(IEC104_mapping));
+    if (iec104_mappingRes == NULL) {
+        return NULL;
+    }
+
+    /* 0X */
+    iec104_mappingRes->single_yx_bits = single_yx_bits;
+    iec104_mappingRes->single_yx_start_bits = start_single_yx_bits;
+    if (single_yx_bits == 0) {
+        iec104_mappingRes->tab_single_yx_bits = NULL;
+    } else {
+        /* Negative number raises a POSIX error */
+        iec104_mappingRes->tab_single_yx_bits =
+            (uint8_t *) malloc(single_yx_bits * sizeof(uint8_t));
+        if (iec104_mappingRes->tab_single_yx_bits == NULL) {
+            free(iec104_mappingRes);
+            return NULL;
+        }
+        memset(iec104_mappingRes->tab_single_yx_bits, 0, single_yx_bits * sizeof(uint8_t));
+    }
+
+    /* 1X */
+    iec104_mappingRes->double_yc_bits = double_yx_bits;
+    iec104_mappingRes->double_yc_start_bits = start_double_yx_bits;
+    if (double_yx_bits == 0) {
+        iec104_mappingRes->tab_double_yx_bits = NULL;
+    } else {
+        iec104_mappingRes->tab_double_yx_bits =
+            (uint8_t *) malloc(double_yx_bits * sizeof(uint8_t));
+        if (iec104_mappingRes->tab_double_yx_bits == NULL) {
+            free(iec104_mappingRes->tab_single_yx_bits);
+            free(iec104_mappingRes);
+            return NULL;
+        }
+        memset(iec104_mappingRes->tab_double_yx_bits, 0, double_yx_bits * sizeof(uint8_t));
+    }
+
+    /* 2X */
+    iec104_mappingRes->yc_bytes = yc_registers;
+    iec104_mappingRes->yc_start_bytes = start_yc_registers;
+    if (yc_registers == 0) {
+        iec104_mappingRes->tab_yc_bytes = NULL;
+    } else {
+        iec104_mappingRes->tab_yc_bytes =
+            (uint16_t *) malloc(yc_registers * sizeof(uint16_t));
+        if (iec104_mappingRes->tab_yc_bytes == NULL) {
+            free(iec104_mappingRes->tab_double_yx_bits);
+            free(iec104_mappingRes->tab_single_yx_bits);
+            free(iec104_mappingRes);
+            return NULL;
+        }
+        memset(iec104_mappingRes->tab_yc_bytes, 0, yc_registers * sizeof(uint16_t));
+    }
+    return iec104_mappingRes;
+}
+
+IEC104_mapping *RDSModbusSlaveThread::IEC104_mapping_new(int single_yx_bits, int double_yx_bits,
+        int yc_registers)
+{
+    return IEC104_mapping_new_start_address(
+               0, single_yx_bits, 0, double_yx_bits, 0, yc_registers);
+}
+
+float RDSModbusSlaveThread::ByteToFloat(unsigned char m0,
+                                        unsigned char m1,
+                                        unsigned char m2,
+                                        unsigned char m3) {
+    // 求符号位
+    float sig = 1.0;
+    if (m0 >= 128.0) {
+        sig = -1.0;
+    }
+    // 求阶码
+    float jie = 0.0;
+    if (m0 >= 128.0) {
+        jie = m0 - 128.0;
+    } else {
+        jie = m0;
+    }
+    jie = jie * 2.0;
+    if (m1 >= 128.0) {
+        jie += 1.0;
+    }
+    jie -= 127.0;
+    // 求尾码
+    float tail = 0.0;
+    if (m1 >= 128.0) {
+        m1 -= 128.0;
+    }
+    tail = m3 + (m2 + m1 * 256.0) * 256.0;
+    tail = (tail) / 8388608;  //   8388608 = 2^23
+    float f = sig * pow(2.0, jie) * (1 + tail);
+    return f;
+}
